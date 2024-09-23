@@ -1,6 +1,7 @@
 package vova.time_manager.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import vova.time_manager.model.User;
 import vova.time_manager.repository.UserRepository;
@@ -18,13 +19,32 @@ public class UserService {
                 new NoSuchElementException("User with email: " + email + " not found."));
     }
 
-    public User findUserByLogin (String login) {
-        return userRepository.findByLogin(login).orElseThrow(() ->
-                new NoSuchElementException("User with login: " + login + " not found."));
+    public User findUserByUsername (String username) {
+        return userRepository.findByUsername(username).orElseThrow(() ->
+                new NoSuchElementException("User with login: " + username + " not found."));
     }
 
     public User findUserById (Long id) {
         return userRepository.findById(id).orElseThrow(() ->
                 new NoSuchElementException("User with id: " + id + " not found."));
+    }
+
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
+    public User create(User user) {
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new RuntimeException("User with this username already exists.");
+        }
+        else if (userRepository.existsByEmail(user.getEmail())) {
+            throw new RuntimeException("User with this email already exists.");
+        }
+
+        return save(user);
+    }
+
+    public UserDetailsService userDetailsService() {
+        return this::findUserByUsername;
     }
 }
