@@ -23,6 +23,8 @@ public class Task {
     private User user;
 
     private String name;
+    @Column(length = 512)
+    private String details;
     private LocalTime dateStart;
     private LocalTime dateStop;
 }

@@ -26,7 +26,7 @@ class TaskControllerTest {
     TaskController controller;
 
     @Test
-    void startTask_CreateNewTask() {
+    void findByUserId_ReturnsValidResponseEntity() {
          var task = List.of(new TaskView(1L, "xdd", LocalTime.parse("14:32"), LocalTime.parse("15:32"), LocalTime.parse("01:00"), 1L),
                  new TaskView(2L, "jokerge", LocalTime.parse("23:01"), LocalTime.parse("23:02"), LocalTime.parse("00:01"), 1L));
          Mockito.doReturn(task).when(this.taskService).findTaskByUserId(1L);

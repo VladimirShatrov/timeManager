@@ -4,11 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+import vova.time_manager.model.Task;
 import vova.time_manager.model.TaskView;
 import vova.time_manager.service.TaskService;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/task")
@@ -16,20 +19,31 @@ import java.util.List;
 public class TaskController {
     private final TaskService taskService;
 
-    @CrossOrigin
-    @GetMapping("/start/{userId}/{dateStart}/{name}")
-    public void startTask(@PathVariable Long userId, @PathVariable LocalTime dateStart, @PathVariable String name) {
-        taskService.startTask(userId, dateStart, name);
+    @PostMapping("/start/{userId}/{dateStart}/{name}")
+    public ResponseEntity<Task> startTask(
+            @PathVariable Long userId,
+            @PathVariable LocalTime dateStart,
+            @PathVariable String name,
+            UriComponentsBuilder uriComponentsBuilder
+    ) {
+        Long id = taskService.startTask(userId, dateStart, name);
+        Task task = taskService.findById(id);
+        return ResponseEntity.created(uriComponentsBuilder
+                        .path("api/task/{id}")
+                        .build(Map.of("id", id)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(task);
     }
 
-    @CrossOrigin
-    @GetMapping("/stop/{id}/{dateStop}")
-    public void stopTask(@PathVariable Long id, @PathVariable LocalTime dateStop) {
+    @PostMapping("/stop/{id}/{dateStop}")
+    public ResponseEntity<Task> stopTask(@PathVariable Long id, @PathVariable LocalTime dateStop) {
         taskService.stopTask(id, dateStop);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(taskService.findById(id));
     }
 
-    @CrossOrigin
-    @GetMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     public void deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
     }
@@ -39,6 +53,13 @@ public class TaskController {
     public ResponseEntity<List<TaskView>> findByUserId (@PathVariable Long userId) {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(this.taskService.findTaskByUserId(userId));
+                .body(taskService.findTaskByUserId(userId));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Task> findById (@PathVariable Long id) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(taskService.findById(id));
     }
 }

@@ -11,6 +11,7 @@ import vova.time_manager.repository.TaskViewRepository;
 import java.sql.Time;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -18,8 +19,8 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskViewRepository taskViewRepository;
 
-    public void startTask(Long userId, LocalTime dateStart, String name) {
-        taskRepository.startTask(userId, dateStart, name);
+    public Long startTask(Long userId, LocalTime dateStart, String name) {
+        return taskRepository.startTask(userId, dateStart, name);
     }
 
     public void stopTask(Long id, LocalTime dateStop) {
@@ -32,5 +33,10 @@ public class TaskService {
 
     public List<TaskView> findTaskByUserId(Long userId) {
         return taskViewRepository.findByUserId(userId);
+    }
+
+    public Task findById(Long id) {
+        return taskRepository.findById(id).orElseThrow(() ->
+                new NoSuchElementException("Task with id: " + id + " not found."));
     }
 }

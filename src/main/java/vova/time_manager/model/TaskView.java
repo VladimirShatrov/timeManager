@@ -26,6 +26,8 @@ public class TaskView {
     private Long id;
 
     private String name;
+    @Column(length = 512)
+    private String details;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime dateStart;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
