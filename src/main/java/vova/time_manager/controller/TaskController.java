@@ -29,7 +29,7 @@ public class TaskController {
         Long id = taskService.startTask(userId, dateStart, name);
         Task task = taskService.findById(id);
         return ResponseEntity.created(uriComponentsBuilder
-                        .path("api/task/{id}")
+                        .path("/{id}")
                         .build(Map.of("id", id)))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(task);

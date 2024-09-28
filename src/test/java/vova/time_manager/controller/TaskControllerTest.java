@@ -8,9 +8,13 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.util.UriComponentsBuilder;
+import vova.time_manager.model.Task;
 import vova.time_manager.model.TaskView;
+import vova.time_manager.model.User;
 import vova.time_manager.service.TaskService;
 
+import java.net.URI;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -27,14 +31,87 @@ class TaskControllerTest {
 
     @Test
     void findByUserId_ReturnsValidResponseEntity() {
-         var task = List.of(new TaskView(1L, "xdd", LocalTime.parse("14:32"), LocalTime.parse("15:32"), LocalTime.parse("01:00"), 1L),
-                 new TaskView(2L, "jokerge", LocalTime.parse("23:01"), LocalTime.parse("23:02"), LocalTime.parse("00:01"), 1L));
-         Mockito.doReturn(task).when(this.taskService).findTaskByUserId(1L);
+         var task = List.of(new TaskView(1L, "xdd",null , LocalTime.parse("14:32"), LocalTime.parse("15:32"), LocalTime.parse("01:00"), 1L),
+                 new TaskView(2L, "jokerge",null ,LocalTime.parse("23:01"), LocalTime.parse("23:02"), LocalTime.parse("00:01"), 1L));
+         Mockito.doReturn(task).when(taskService).findTaskByUserId(1L);
 
-         var tasks = this.controller.findByUserId(1L);
+         var tasks = controller.findByUserId(1L);
          assertNotNull(tasks);
          assertEquals(HttpStatus.OK, tasks.getStatusCode());
          assertEquals(MediaType.APPLICATION_JSON, tasks.getHeaders().getContentType());
          assertEquals(task, tasks.getBody());
+    }
+    @Test
+    void startTask_ReturnsValidResponseEntity() {
+        Long userId = 1L;
+        LocalTime localTime = LocalTime.now();
+        String name = "new task";
+        Long taskId = 1L;
+
+        Mockito.when(taskService.startTask(userId, localTime, name)).thenReturn(taskId);
+        User user = new User(userId, "user", "email", "password");
+        Task mockTask = new Task(taskId, user, name, null, localTime, null);
+        Mockito.when(taskService.findById(taskId)).thenReturn(mockTask);
+        var responseEntity = controller.startTask(userId, localTime, name,
+                UriComponentsBuilder.fromUriString("http://localhost:8080/task/start"));
+
+        assertNotNull(responseEntity);
+        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, responseEntity.getHeaders().getContentType());
+        if (responseEntity.getBody() != null) {
+            Task task = responseEntity.getBody();
+            assertNotNull(task.getId());
+            assertEquals(userId, task.getUser().getId());
+            assertEquals(localTime, task.getDateStart());
+            assertEquals(name, task.getName());
+            assertNull(task.getDateStop());
+
+            assertEquals(URI.create("http://localhost:8080/task/start/" + task.getId()),
+                    responseEntity.getHeaders().getLocation());
+        }
+        else {
+            assertInstanceOf(Task.class, responseEntity.getBody());
+        }
+    }
+
+    @Test
+    void stopTask_ReturnValidResponseEntity() {
+        Long userId = 1L;
+        LocalTime localTime = LocalTime.now();
+        String name = "task";
+        Long taskId = 1L;
+        User user = new User(userId, "user", "email", "password");
+        Task mockTask = new Task(taskId, user, name, null, localTime, null);
+        Mockito.when(taskService.findById(taskId)).thenReturn(mockTask);
+
+        LocalTime stopTime = LocalTime.now();
+        var responseEntity = controller.stopTask(taskId, stopTime);
+
+        assertNotNull(responseEntity);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, responseEntity.getHeaders().getContentType());
+        mockTask.setDateStop(stopTime);
+        assertEquals(responseEntity.getBody(), mockTask);
+        assertEquals(responseEntity.getBody().getDateStop(), stopTime);
+        assertNotNull(responseEntity.getBody().getDateStop());
+    }
+
+    @Test
+    void findById_ReturnsValidResponseEntity() {
+        Long userId = 1L;
+        LocalTime localTime = LocalTime.now();
+        String name = "task";
+        Long taskId = 1L;
+        User user = new User(userId, "user", "email", "password");
+        Task mockTask = new Task(taskId, user, name, null, localTime, null);
+        Mockito.when(taskService.findById(taskId)).thenReturn(mockTask);
+
+        var task = controller.findById(taskId);
+
+        assertNotNull(task);
+        assertEquals(HttpStatus.OK, task.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, task.getHeaders().getContentType());
+        assertNotNull(task.getBody());
+        assertEquals(task.getBody(), mockTask);
     }
 }
