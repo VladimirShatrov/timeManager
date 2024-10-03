@@ -1,14 +1,18 @@
 package vova.time_manager.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import vova.time_manager.dto.UserPayload;
+import vova.time_manager.error.ErrorsPresentation;
 import vova.time_manager.model.User;
 import vova.time_manager.service.UserService;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -18,16 +22,43 @@ public class UserController {
 
     private final UserService userService;
 
+    private final MessageSource messageSource;
+
     @PostMapping("/create")
-    public ResponseEntity<User> createUser(
+    public ResponseEntity<?> createUser(
             @RequestBody UserPayload createUserPayload,
-            UriComponentsBuilder uriComponentsBuilder) {
+            UriComponentsBuilder uriComponentsBuilder,
+            Locale locale) {
+        if (createUserPayload.username() == null || createUserPayload.username().isBlank()) {
+            final var messageUsername = messageSource
+                    .getMessage("user.create.username.errors.not_set",
+                            new Object[0], locale);
+            return ResponseEntity.badRequest()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new ErrorsPresentation(List.of(messageUsername)));
+        }
+        if (createUserPayload.email() == null || createUserPayload.email().isBlank()) {
+            final var messageEmail = messageSource
+                    .getMessage("user.create.email.errors.not_set",
+                            new Object[0], locale);
+            return ResponseEntity.badRequest()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new ErrorsPresentation(List.of(messageEmail)));
+        }
+        if (createUserPayload.password() == null || createUserPayload.password().isBlank()) {
+            final var messagePassword = messageSource
+                    .getMessage("user.create.password.errors.not_set",
+                            new Object[0], locale);
+            return ResponseEntity.badRequest()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new ErrorsPresentation(List.of(messagePassword)));
+        }
         User user = new User(createUserPayload.username(),
                  createUserPayload.email(),
                  createUserPayload.password());
         User newUser = userService.create(user);
         return ResponseEntity.created(uriComponentsBuilder
-                .path("/{id}")
+                .path("user/{id}")
                 .build(Map.of("id", newUser.getId())))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(newUser);
