@@ -3,6 +3,7 @@ package vova.time_manager.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import vova.time_manager.dto.UserPayload;
 import vova.time_manager.model.User;
 import vova.time_manager.repository.UserRepository;
 
@@ -46,5 +47,34 @@ public class UserService {
 
     public UserDetailsService userDetailsService() {
         return this::findUserByUsername;
+    }
+
+    public User editUser(Long id, UserPayload userPayload) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User with id: " + id + " not found."));
+
+        if (userPayload.email() != null) {
+            if (userRepository.existsByEmail(userPayload.email())) {
+                throw new RuntimeException("User with email: " + userPayload.email() + " already exists.");
+            }
+        }
+
+        if (userPayload.username() != null) {
+            if (userRepository.existsByUsername(userPayload.username())) {
+                throw new RuntimeException("User with username: " + userPayload.username() + " already exists.");
+            }
+        }
+
+        if (userPayload.email() != null) {
+                user.setEmail(userPayload.email());
+        }
+        if (userPayload.username() != null) {
+                user.setUsername(userPayload.username());
+        }
+        if (userPayload.password() != null) {
+            user.setPassword(userPayload.password());
+        }
+
+        return save(user);
     }
 }

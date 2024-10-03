@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface TaskViewRepository extends JpaRepository<TaskView, Long> {
 
-    List<TaskView> findByUserId(Long user_id);
+    List<TaskView> findByUserIdOrderByDurationDesc(Long user_id);
 }

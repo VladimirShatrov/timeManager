@@ -32,7 +32,7 @@ public class TaskService {
     }
 
     public List<TaskView> findTaskByUserId(Long userId) {
-        return taskViewRepository.findByUserId(userId);
+        return taskViewRepository.findByUserIdOrderByDurationDesc(userId);
     }
 
     public Task findById(Long id) {
