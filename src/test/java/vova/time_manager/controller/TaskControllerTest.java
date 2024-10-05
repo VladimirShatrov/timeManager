@@ -17,6 +17,7 @@ import vova.time_manager.service.TaskService;
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -119,4 +120,37 @@ class TaskControllerTest {
         assertNotNull(task.getBody());
         assertEquals(task.getBody(), mockTask);
     }
+
+    @Test
+    void sumLaborCost_ReturnsValidResponseEntity() {
+        Long userId = 1L;
+        Date dateStart = Date.from(Instant.parse("2024-10-05T18:00:00Z"));
+        Date dateStop = Date.from(Instant.parse("2024-10-05T19:45:00Z"));
+        String name = "task1";
+        Long taskId = 1L;
+
+        Date dateStart2 = Date.from(Instant.parse("2024-10-06T18:00:00Z"));
+        Date dateStop2 = Date.from(Instant.parse("2024-10-06T19:45:00Z"));
+        String name2 = "task2";
+        Long taskId2 = 2L;
+
+        Mockito.when(taskService.findTaskByUserId(userId,
+                        Date.from(Instant.parse("2023-01-01T00:00:00Z")),
+                        Date.from(Instant.parse("2025-01-01T00:00:00Z"))))
+                .thenReturn(Arrays.asList(
+                        new TaskView(taskId, name, null, dateStart, dateStop, LocalTime.of(1, 45), userId),
+                        new TaskView(taskId2, name2, null, dateStart2, dateStop2, LocalTime.of(1, 45), userId)));
+
+        var responseEntity = controller.sumLaborCost(userId,
+                Date.from(Instant.parse("2023-01-01T00:00:00Z")),
+                Date.from(Instant.parse("2025-01-01T00:00:00Z")));
+
+        assertNotNull(responseEntity);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, responseEntity.getHeaders().getContentType());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(responseEntity.getBody().getHours(), 3);
+        assertEquals(responseEntity.getBody().getMinutes(), 30);
+    }
+
 }
