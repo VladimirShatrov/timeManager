@@ -15,7 +15,9 @@ import vova.time_manager.model.User;
 import vova.time_manager.service.TaskService;
 
 import java.net.URI;
+import java.time.Instant;
 import java.time.LocalTime;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,11 +33,14 @@ class TaskControllerTest {
 
     @Test
     void findByUserId_ReturnsValidResponseEntity() {
-         var task = List.of(new TaskView(1L, "xdd",null , LocalTime.parse("14:32"), LocalTime.parse("15:32"), LocalTime.parse("01:00"), 1L),
-                 new TaskView(2L, "jokerge",null ,LocalTime.parse("23:01"), LocalTime.parse("23:02"), LocalTime.parse("00:01"), 1L));
-         Mockito.doReturn(task).when(taskService).findTaskByUserId(1L);
 
-         var tasks = controller.findByUserId(1L);
+         var task = List.of(new TaskView(1L, "xdd",null , Date.from(Instant.parse("2024-05-10T16:25:00Z")), Date.from(Instant.parse("2024-05-10T17:25:00Z")), LocalTime.parse("00:00"), 1L),
+                 new TaskView(2L, "jokerge",null, Date.from(Instant.parse("2024-05-10T16:26:00Z")), Date.from(Instant.parse("2024-05-10T16:27:00Z")), LocalTime.parse("00:01"), 1L));
+         Date from = Date.from(Instant.parse("2023-01-01T00:00:00Z"));
+         Date to = Date.from(Instant.parse("2025-01-01T00:00:00Z"));
+         Mockito.doReturn(task).when(taskService).findTaskByUserId(1L, from, to);
+
+         var tasks = controller.findByUserId(1L, from, to);
          assertNotNull(tasks);
          assertEquals(HttpStatus.OK, tasks.getStatusCode());
          assertEquals(MediaType.APPLICATION_JSON, tasks.getHeaders().getContentType());
@@ -44,15 +49,15 @@ class TaskControllerTest {
     @Test
     void startTask_ReturnsValidResponseEntity() {
         Long userId = 1L;
-        LocalTime localTime = LocalTime.now();
+        Date date = Date.from(Instant.now());
         String name = "new task";
         Long taskId = 1L;
 
-        Mockito.when(taskService.startTask(userId, localTime, name)).thenReturn(taskId);
+        Mockito.when(taskService.startTask(userId, date, name)).thenReturn(taskId);
         User user = new User(userId, "user", "email", "password");
-        Task mockTask = new Task(taskId, user, name, null, localTime, null);
+        Task mockTask = new Task(taskId, user, name, null, date, null);
         Mockito.when(taskService.findById(taskId)).thenReturn(mockTask);
-        var responseEntity = controller.startTask(userId, localTime, name,
+        var responseEntity = controller.startTask(userId, date, name,
                 UriComponentsBuilder.fromUriString("http://localhost:8080/task/start"));
 
         assertNotNull(responseEntity);
@@ -62,7 +67,7 @@ class TaskControllerTest {
             Task task = responseEntity.getBody();
             assertNotNull(task.getId());
             assertEquals(userId, task.getUser().getId());
-            assertEquals(localTime, task.getDateStart());
+            assertEquals(date, task.getDateStart());
             assertEquals(name, task.getName());
             assertNull(task.getDateStop());
 
@@ -77,14 +82,14 @@ class TaskControllerTest {
     @Test
     void stopTask_ReturnValidResponseEntity() {
         Long userId = 1L;
-        LocalTime localTime = LocalTime.now();
+        Date date = Date.from(Instant.now());
         String name = "task";
         Long taskId = 1L;
         User user = new User(userId, "user", "email", "password");
-        Task mockTask = new Task(taskId, user, name, null, localTime, null);
+        Task mockTask = new Task(taskId, user, name, null, date, null);
         Mockito.when(taskService.findById(taskId)).thenReturn(mockTask);
 
-        LocalTime stopTime = LocalTime.now();
+        Date stopTime = Date.from(Instant.now());
         var responseEntity = controller.stopTask(taskId, stopTime);
 
         assertNotNull(responseEntity);
@@ -99,11 +104,11 @@ class TaskControllerTest {
     @Test
     void findById_ReturnsValidResponseEntity() {
         Long userId = 1L;
-        LocalTime localTime = LocalTime.now();
+        Date date = Date.from(Instant.now());
         String name = "task";
         Long taskId = 1L;
         User user = new User(userId, "user", "email", "password");
-        Task mockTask = new Task(taskId, user, name, null, localTime, null);
+        Task mockTask = new Task(taskId, user, name, null, date, null);
         Mockito.when(taskService.findById(taskId)).thenReturn(mockTask);
 
         var task = controller.findById(taskId);

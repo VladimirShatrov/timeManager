@@ -1,6 +1,7 @@
 package vova.time_manager.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import vova.time_manager.model.TaskView;
 import vova.time_manager.service.TaskService;
 
 import java.time.LocalTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -19,10 +21,10 @@ import java.util.Map;
 public class TaskController {
     private final TaskService taskService;
 
-    @PostMapping("/start/{userId}/{dateStart}/{name}")
+    @PostMapping("/start/{userId}/{name}")
     public ResponseEntity<Task> startTask(
             @PathVariable Long userId,
-            @PathVariable LocalTime dateStart,
+            @RequestParam("dateStart") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date dateStart,
             @PathVariable String name,
             UriComponentsBuilder uriComponentsBuilder
     ) {
@@ -35,8 +37,10 @@ public class TaskController {
                 .body(task);
     }
 
-    @PostMapping("/stop/{id}/{dateStop}")
-    public ResponseEntity<Task> stopTask(@PathVariable Long id, @PathVariable LocalTime dateStop) {
+    @PostMapping("/stop/{id}")
+    public ResponseEntity<Task> stopTask(
+            @PathVariable Long id,
+            @RequestParam("dateStop") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date dateStop) {
         taskService.stopTask(id, dateStop);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -50,10 +54,14 @@ public class TaskController {
 
     @CrossOrigin
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<TaskView>> findByUserId (@PathVariable Long userId) {
+    public ResponseEntity<List<TaskView>> findByUserId (
+            @PathVariable Long userId,
+            @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date from,
+            @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date to
+    ) {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(taskService.findTaskByUserId(userId));
+                .body(taskService.findTaskByUserId(userId, from, to));
     }
 
     @GetMapping("/{id}")

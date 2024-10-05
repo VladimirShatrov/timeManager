@@ -72,7 +72,7 @@ public class UserController {
     }
 
     @PostMapping("/edit/{id}")
-    public ResponseEntity<User> editUser(
+    public ResponseEntity<?> editUser(
             @RequestBody UserPayload userPayload,
             @PathVariable Long id) {
         User editUser = userService.editUser(id, userPayload);

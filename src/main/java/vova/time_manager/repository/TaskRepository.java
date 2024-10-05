@@ -6,15 +6,16 @@ import org.springframework.stereotype.Repository;
 import vova.time_manager.model.Task;
 
 import java.time.LocalTime;
+import java.util.Date;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Procedure(procedureName = "prc_start_task")
-    Long startTask(Long userId, LocalTime dateStart, String name);
+    Long startTask(Long userId, Date dateStart, String name);
 
     @Procedure(procedureName = "prc_stop_task")
-    void stopTask(Long taskId, LocalTime dateStop);
+    void stopTask(Long taskId, Date dateStop);
 
     @Procedure(procedureName = "prc_delete_task")
     void deleteTask(Long id);

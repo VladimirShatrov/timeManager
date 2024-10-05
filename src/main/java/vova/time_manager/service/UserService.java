@@ -58,20 +58,16 @@ public class UserService {
             if (userRepository.existsByEmail(userPayload.email())) {
                 throw new RuntimeException("User with email: " + userPayload.email() + " already exists.");
             }
+            user.setEmail(userPayload.email());
         }
 
         if (userPayload.username() != null) {
             if (userRepository.existsByUsername(userPayload.username())) {
                 throw new RuntimeException("User with username: " + userPayload.username() + " already exists.");
             }
+            user.setUsername(userPayload.username());
         }
 
-        if (userPayload.email() != null) {
-                user.setEmail(userPayload.email());
-        }
-        if (userPayload.username() != null) {
-                user.setUsername(userPayload.username());
-        }
         if (userPayload.password() != null) {
             user.setPassword(userPayload.password());
         }

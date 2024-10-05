@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalTime;
+import java.util.Date;
 
 @Entity
 @AllArgsConstructor
@@ -22,9 +23,10 @@ public class Task {
     @ManyToOne
     private User user;
 
+    @Column(length = 256)
     private String name;
     @Column(length = 512)
     private String details;
-    private LocalTime dateStart;
-    private LocalTime dateStop;
+    private Date dateStart;
+    private Date dateStop;
 }

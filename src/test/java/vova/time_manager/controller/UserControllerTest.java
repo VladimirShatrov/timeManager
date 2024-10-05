@@ -39,8 +39,7 @@ public class UserControllerTest {
         String username = "user";
         String email = "user@mail.com";
         String password = "password";
-        User newUser = new User(username, email, password);
-        newUser.setId(1L);
+        User newUser = new User(1L, username, email, password);
 
         Mockito.when(userService.create(Mockito.any(User.class))).thenReturn(newUser);
 
@@ -139,8 +138,7 @@ public class UserControllerTest {
         String username = "user";
         String email = "user@mail.com";
         String password = "password";
-        User user = new User(username, email, password);
-        user.setId(1L);
+        User user = new User(1L, username, email, password);
 
         Mockito.when(userService.findUserById(1L)).thenReturn(user);
 
@@ -152,7 +150,4 @@ public class UserControllerTest {
         assertNotNull(responseEntity.getBody());
         assertEquals(responseEntity.getBody(), user);
     }
-
-
-
 }

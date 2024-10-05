@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Immutable;
 
 import java.time.LocalTime;
+import java.util.Date;
 
 @Entity
 @Getter
@@ -25,13 +26,14 @@ public class TaskView {
     @Column(insertable = false, updatable = false)
     private Long id;
 
+    @Column(length = 256)
     private String name;
     @Column(length = 512)
     private String details;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
-    private LocalTime dateStart;
+    private Date dateStart;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
-    private LocalTime dateStop;
+    private Date dateStop;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime duration;
     private Long userId;
