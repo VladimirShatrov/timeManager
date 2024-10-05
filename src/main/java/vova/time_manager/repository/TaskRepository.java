@@ -7,6 +7,7 @@ import vova.time_manager.model.Task;
 
 import java.time.LocalTime;
 import java.util.Date;
+import java.util.List;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
@@ -17,6 +18,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Procedure(procedureName = "prc_stop_task")
     void stopTask(Long taskId, Date dateStop);
 
-    @Procedure(procedureName = "prc_delete_task")
-    void deleteTask(Long id);
+    void deleteTaskById(Long id);
+
+    List<Task> findTaskByUserId(Long userId);
 }

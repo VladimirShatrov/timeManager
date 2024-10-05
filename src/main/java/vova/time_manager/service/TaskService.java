@@ -29,15 +29,27 @@ public class TaskService {
     }
 
     public void deleteTask(Long id) {
-        taskRepository.deleteTask(id);
+        taskRepository.deleteTaskById(id);
     }
 
-    public List<TaskView> findTaskByUserId(Long userId, Date from, Date to) {
+    public List<TaskView> findTaskViewByUserId(Long userId, Date from, Date to) {
         return taskViewRepository.findByUserIdOrderByDurationDesc(userId, from, to);
     }
 
     public Task findById(Long id) {
         return taskRepository.findById(id).orElseThrow(() ->
                 new NoSuchElementException("Task with id: " + id + " not found."));
+    }
+
+    public List<Task> findTaskByUserId(Long userId) {
+        return taskRepository.findTaskByUserId(userId);
+    }
+
+    public void deleteAllUserTask(Long userId) {
+        List<Task> tasks = this.findTaskByUserId(userId);
+        for (Task task: tasks
+        ) {
+            this.deleteTask(task.getId());
+        }
     }
 }

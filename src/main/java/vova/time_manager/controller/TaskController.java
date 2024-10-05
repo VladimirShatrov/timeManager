@@ -1,6 +1,5 @@
 package vova.time_manager.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
@@ -63,7 +62,7 @@ public class TaskController {
     ) {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(taskService.findTaskByUserId(userId, from, to));
+                .body(taskService.findTaskViewByUserId(userId, from, to));
     }
 
     @GetMapping("/{id}")
@@ -79,7 +78,7 @@ public class TaskController {
             @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date from,
             @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date to
     ) {
-        List<TaskView> tasks = taskService.findTaskByUserId(userId, from, to);
+        List<TaskView> tasks = taskService.findTaskViewByUserId(userId, from, to);
         LaborCost laborCost = new LaborCost(0, 0);
         for (TaskView task: tasks
              ) {
@@ -97,5 +96,13 @@ public class TaskController {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(laborCost);
+    }
+
+    @PostMapping("/deleteAll/{userId}")
+    public ResponseEntity<?> deleteAllUserTasks(@PathVariable Long userId) {
+        taskService.deleteAllUserTask(userId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("all user task deleted");
     }
 }

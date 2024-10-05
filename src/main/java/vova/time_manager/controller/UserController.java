@@ -9,6 +9,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import vova.time_manager.dto.UserPayload;
 import vova.time_manager.error.ErrorsPresentation;
 import vova.time_manager.model.User;
+import vova.time_manager.service.TaskService;
 import vova.time_manager.service.UserService;
 
 import java.util.List;
@@ -21,6 +22,8 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+
+    private final TaskService taskService;
 
     private final MessageSource messageSource;
 
@@ -79,5 +82,15 @@ public class UserController {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(editUser);
+    }
+
+    @PostMapping("/delete/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        taskService.deleteAllUserTask(id);
+        userService.deleteUser(id);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("all user data deleted");
     }
 }

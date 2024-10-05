@@ -39,7 +39,7 @@ class TaskControllerTest {
                  new TaskView(2L, "jokerge",null, Date.from(Instant.parse("2024-05-10T16:26:00Z")), Date.from(Instant.parse("2024-05-10T16:27:00Z")), LocalTime.parse("00:01"), 1L));
          Date from = Date.from(Instant.parse("2023-01-01T00:00:00Z"));
          Date to = Date.from(Instant.parse("2025-01-01T00:00:00Z"));
-         Mockito.doReturn(task).when(taskService).findTaskByUserId(1L, from, to);
+         Mockito.doReturn(task).when(taskService).findTaskViewByUserId(1L, from, to);
 
          var tasks = controller.findByUserId(1L, from, to);
          assertNotNull(tasks);
@@ -134,7 +134,7 @@ class TaskControllerTest {
         String name2 = "task2";
         Long taskId2 = 2L;
 
-        Mockito.when(taskService.findTaskByUserId(userId,
+        Mockito.when(taskService.findTaskViewByUserId(userId,
                         Date.from(Instant.parse("2023-01-01T00:00:00Z")),
                         Date.from(Instant.parse("2025-01-01T00:00:00Z"))))
                 .thenReturn(Arrays.asList(
@@ -151,6 +151,34 @@ class TaskControllerTest {
         assertNotNull(responseEntity.getBody());
         assertEquals(responseEntity.getBody().getHours(), 3);
         assertEquals(responseEntity.getBody().getMinutes(), 30);
+    }
+
+    @Test
+    void deleteAllUserTask() {
+        Long userId = 1L;
+        Date dateStart = Date.from(Instant.parse("2024-10-05T18:00:00Z"));
+        Date dateStop = Date.from(Instant.parse("2024-10-05T19:45:00Z"));
+        String name = "task1";
+        Long taskId = 1L;
+
+        Date dateStart2 = Date.from(Instant.parse("2024-10-06T18:00:00Z"));
+        Date dateStop2 = Date.from(Instant.parse("2024-10-06T19:45:00Z"));
+        String name2 = "task2";
+        Long taskId2 = 2L;
+
+        User user = new User(userId, "user", "email", "password");
+        Task task1 = new Task(1L, user, name, null, dateStart, dateStop);
+        Task task2 = new Task(1L, user, name2, null, dateStart2, dateStop2);
+
+        Mockito.when(taskService.findTaskByUserId(1L)).thenReturn(Arrays.asList(task1, task2));
+
+        var responseEntity = controller.deleteAllUserTasks(1L);
+
+        assertNotNull(responseEntity);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, responseEntity.getHeaders().getContentType());
+        assertNotNull(responseEntity.getBody());
+        assertEquals("all user task deleted", responseEntity.getBody());
     }
 
 }

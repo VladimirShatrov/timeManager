@@ -74,4 +74,8 @@ public class UserService {
 
         return save(user);
     }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteUserById(id);
+    }
 }
