@@ -35,7 +35,7 @@ class TaskControllerTest {
     @Test
     void findByUserId_ReturnsValidResponseEntity() {
 
-         var task = List.of(new TaskView(1L, "xdd",null , Date.from(Instant.parse("2024-05-10T16:25:00Z")), Date.from(Instant.parse("2024-05-10T17:25:00Z")), LocalTime.parse("00:00"), 1L),
+         var task = List.of(new TaskView(1L, "xdd",null , Date.from(Instant.parse("2024-05-10T16:25:00Z")), Date.from(Instant.parse("2024-05-10T17:25:00Z")), LocalTime.parse("01:00"), 1L),
                  new TaskView(2L, "jokerge",null, Date.from(Instant.parse("2024-05-10T16:26:00Z")), Date.from(Instant.parse("2024-05-10T16:27:00Z")), LocalTime.parse("00:01"), 1L));
          Date from = Date.from(Instant.parse("2023-01-01T00:00:00Z"));
          Date to = Date.from(Instant.parse("2025-01-01T00:00:00Z"));

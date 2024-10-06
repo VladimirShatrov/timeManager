@@ -18,7 +18,5 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Procedure(procedureName = "prc_stop_task")
     void stopTask(Long taskId, Date dateStop);
 
-    void deleteTaskById(Long id);
-
     List<Task> findTaskByUserId(Long userId);
 }

@@ -1,7 +1,11 @@
 package vova.time_manager.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vova.time_manager.model.Task;
 import vova.time_manager.model.TaskView;
 import vova.time_manager.model.User;
@@ -20,6 +24,9 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskViewRepository taskViewRepository;
 
+    @PersistenceContext
+    private final EntityManager entityManager;
+
     public Long startTask(Long userId, Date dateStart, String name) {
         return taskRepository.startTask(userId, dateStart, name);
     }
@@ -28,8 +35,15 @@ public class TaskService {
         taskRepository.stopTask(id, dateStop);
     }
 
+    @Transactional
     public void deleteTask(Long id) {
-        taskRepository.deleteTaskById(id);
+        Task task = entityManager.find(Task.class, id);
+        if (task != null) {
+            entityManager.remove(task);
+        }
+        else {
+            throw new EntityNotFoundException("Task not found");
+        }
     }
 
     public List<TaskView> findTaskViewByUserId(Long userId, Date from, Date to) {
@@ -45,11 +59,12 @@ public class TaskService {
         return taskRepository.findTaskByUserId(userId);
     }
 
+    @Transactional
     public void deleteAllUserTask(Long userId) {
         List<Task> tasks = this.findTaskByUserId(userId);
         for (Task task: tasks
         ) {
-            this.deleteTask(task.getId());
+            entityManager.remove(task);
         }
     }
 }

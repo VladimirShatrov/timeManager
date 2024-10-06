@@ -1,9 +1,13 @@
 package vova.time_manager.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vova.time_manager.dto.UserPayload;
 import vova.time_manager.model.User;
 import vova.time_manager.repository.UserRepository;
@@ -15,6 +19,9 @@ import java.util.NoSuchElementException;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    @PersistenceContext
+    private final EntityManager entityManager;
 
     public User findUserByEmail (String email) {
         return userRepository.findByEmail(email).orElseThrow(() ->
@@ -75,7 +82,14 @@ public class UserService {
         return save(user);
     }
 
+    @Transactional
     public void deleteUser(Long id) {
-        userRepository.deleteUserById(id);
+        User user = entityManager.find(User.class, id);
+        if (user != null) {
+            entityManager.remove(user);
+        }
+        else {
+            throw new EntityNotFoundException("User not found");
+        }
     }
 }
