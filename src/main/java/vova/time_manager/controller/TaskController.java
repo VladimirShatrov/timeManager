@@ -9,7 +9,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import vova.time_manager.dto.LaborCost;
 import vova.time_manager.model.Task;
 import vova.time_manager.model.TaskView;
+import vova.time_manager.model.User;
 import vova.time_manager.service.TaskService;
+import vova.time_manager.service.UserService;
 
 import java.time.LocalTime;
 import java.util.Date;
